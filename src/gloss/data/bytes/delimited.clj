@@ -81,23 +81,6 @@
 (defn match-loop [delimiters strip-delimiters?]
   (let [delimiters (sort-delimiters delimiters)
         max-delimiter-length (.remaining ^ByteBuffer (first delimiters))]
-    (eval
-     (postwalk-replace
-      {'buf (with-meta 'buf {:tag "java.nio.ByteBuffer"})}
-      `(fn [~'buf last-and-complete?#]
-         (let [~'buf-length (.remaining ~'buf)
-               ~'final-position (when-not last-and-complete?#
-                                  (unchecked-subtract ~'buf-length ~max-delimiter-length))]
-           (loop [~'pos 0]
-             (if (== ~'pos ~'buf-length)
-               [false 0 0]
-               (if (or ~@(map #(delimiter-matcher % max-delimiter-length) delimiters))
-                 [true ~(if strip-delimiters? 'pos `(.position ~'buf)) (.position ~'buf)]
-                 (recur (unchecked-inc ~'pos)))))))))))
-
-(defn new-match-loop [delimiters strip-delimiters?]
-  (let [delimiters (sort-delimiters delimiters)
-        max-delimiter-length (.remaining ^ByteBuffer (first delimiters))]
     (fn [^java.nio.ByteBuffer buf last-and-complete?]
       (let [buf-length (.remaining buf)
             final-position (when-not last-and-complete?
