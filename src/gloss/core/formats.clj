@@ -9,7 +9,7 @@
 (ns ^{:skip-wiki true}
   gloss.core.formats
   (:require
-    [byte-streams :as bs])
+    [byte-streams.core :as bs])
   (:use
     [gloss.data.bytes.core])
   (:import
